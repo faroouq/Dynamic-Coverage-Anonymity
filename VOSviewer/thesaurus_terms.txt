@@ -1,0 +1,32 @@
+﻿label	replace by
+location anonymity	anonymity
+location privacy protection	anonymity
+location privacy	anonymity
+network security	security
+traffic-analysis techniques	tvaa
+traffic analysis	tvaa
+traffic analysis	tvaa
+traffic analysis attacks	tvaa
+traffic volumes	traf. vols.
+wireless sensor network	wsn
+wireless sensor network (wsns)	wsn
+wireless sensor networks	wsn
+mobile telecommunication systems	mobile telecom. sys.
+base stations	bs
+base station	bs
+internet of things	iot
+internet of things (iot)	iot
+energy efficiency	net. lifetime
+energy	net. lifetime
+location	phy location
+physical locations	phy location
+topology	phy location
+sensor nodes	sn
+sensors	sn
+wireless sensor	sn
+contextual information	contextual info
+hostile environments	hostile env
+deceptive packets	deceptive pkts.
+network layers	net. layers
+network routing	net. routing
+network lifetime	net. lifetime
