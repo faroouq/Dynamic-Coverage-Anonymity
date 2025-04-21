@@ -7,7 +7,7 @@
 %       her assistance in implementation for the evidence theory used in 
 %       this paper.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function anonymity()
+function anonymity_beta()
 global nodeGridx;      %BS is at the center of grid
 global nodeGridy;
 global clusterHeads;
@@ -29,9 +29,10 @@ global Tx_matrix;                           %This matrix tells us who send to wh
 %rng(2);
 saveFile=true;
 
-maxSensorPerNode=20;                        %No. of nodes per cluster
-nodeGridx=50;                                %BS is at the center of grid (previous value is 9)
-nodeGridy=50;                                %odd number (previous value is 9)
+maxSensorPerNode=10;                        %No. of nodes per cluster
+nodeGridx=100;                                %BS is at the center of grid (previous value is 9)
+
+nodeGridy=100;                                %odd number (previous value is 9)
 clusterHeads=zeros(nodeGridx, nodeGridy);   %this matrix stores traffic of the cluster head
 clusterState=ones(nodeGridx, nodeGridy);    %This tells use whether cluster (including Head) are 
                                             %sleeping (0) or awake(1)
@@ -39,8 +40,8 @@ droppedPackets=zeros(nodeGridx, nodeGridy); %is node in path is sleepy drop pack
 nodesPerCluster=round(rand(nodeGridx, nodeGridy)*maxSensorPerNode); %v How many clusters are there in each node
 
 sleepWakeupThreshold=10;                 %what time to sleep or wakeup
-highLevel=1000;                                 %High traffic nodes reduce traffic according to 10 levels
-lowLevel=1000;                                  %Low traffic nodes reduce traffic according to 10 levels
+highLevel=0;                                 %High traffic nodes reduce traffic according to 10 levels
+lowLevel=10000;                                  %Low traffic nodes increase traffic according to 10 levels
 %noSleepingNode=300;                         %How many regions can I make to sleep per Wakeup cycle 
 simTimeMax=10000;                             %Unit in seconds
 
@@ -49,8 +50,8 @@ BSy=ceil(nodeGridy/2);
 
 
 nodesInRowGroup=2;                          %No. of nodes in a row
-nodesInColGroup=1;                          %No. of nodes in a col for the block
-coverThreshold=25;                          %percentage coverage beyound which you are not allowed to sleep, sorry :-)
+nodesInColGroup=2;                          %No. of nodes in a col for the block
+coverThreshold=50;                          %percentage coverage beyound which you are not allowed to sleep, sorry :-)
 topoArea=zeros(nodeGridx,nodeGridy);        %Topology group
 
 
@@ -143,10 +144,9 @@ for t=1:1:simTimeMax                            %The start simulation
         
         
         if not(and(and(clusterCoordx==BSx, clusterCoordy==BSy),clusterState(clusterCoordx, clusterCoordy)==0))      %BS does not sense and region not asleep
-            nodesAwake = round((((clusterCoordx-BSx)^2 + (clusterCoordy-BSy)^2)^(0.5) * 100) * nodesPerCluster(clusterCoordx, clusterCoordy));
+            nodesAwake = round((clusterState(clusterCoordx, clusterCoordy)) * nodesPerCluster(clusterCoordx, clusterCoordy));
             count = nodesAwake; %round(random('uniform',0,nodesAwake));                       %how many sensor are reporting data
             if(count>0)
-                %clusterHeads(clusterCoordx, clusterCoordy) = clusterHeads(clusterCoordx, clusterCoordy) + count;    %add to clusterHeads total traffic
                 clusterHeads(clusterCoordx, clusterCoordy) = clusterHeads(clusterCoordx, clusterCoordy) + count;    %add to clusterHeads total traffic
                 energy(clusterCoordx, clusterCoordy) = energy(clusterCoordx, clusterCoordy)+ P_rx*T_trans*count;    %energy due to traffic on CH
                 route(clusterCoordx, clusterCoordy);      %aggregated data is then sent to the BS
@@ -186,17 +186,18 @@ figure(simTimeMax);
 subplot(2,1,1)
 image(clusterHeads);
 colorbar;
-text=['Smilation time = ', num2str(simTimeMax)];
-xlabel('x-ccordinates');
-ylabel('y-ccordinates');
-%title(text);
+text=['Simlation time = ', num2str(simTimeMax)];
+title(text);
+xlabel('X Coordinates')
+ylabel('Y Coordinates')
+
 
 subplot(2,1,2)
 surfc(clusterHeads);
-xlabel('x-ccordinates');
-ylabel('y-ccordinates');
-zlabel('Traffic');
-%title(text);
+title(text);
+xlabel('X Coordinates')
+ylabel('Y Coordinates')
+
 
 figure(2);
 hold on;
@@ -221,6 +222,18 @@ hold off;
 % grid on;
 % hold off;
 
+figure; imagesc(clusterHeads); colorbar;
+text=['Simlation time = ', num2str(simTimeMax)];
+title(text);
+xlabel('X Coordinates')
+ylabel('Y Coordinates')
+
+
+figure; surfc(clusterHeads);
+title(text);
+xlabel('X Coordinates')
+ylabel('Y Coordinates')
+zlabel('Traffic')
 
     if(saveFile)
         fID=fopen('evidence10000.txt','w');
@@ -453,7 +466,12 @@ finaly=BSy;
               Tx_matrix(txer,rxer)=Tx_matrix(txer,rxer)+1;              %not the transmission
            end           
        end
+       
+       clusterHeads(finalx, finaly) =  clusterHeads(finalx, finaly) + 1;
        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+       
+       
+       
        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        %Second route       
        %Movement along y-axis
